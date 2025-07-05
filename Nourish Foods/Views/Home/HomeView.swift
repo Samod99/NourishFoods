@@ -56,7 +56,7 @@ struct HomeView: View {
 
                 }
                 
-                HStack {
+                HStack(spacing: 10) {
                     CategoryCard(imageName: "meat", title: "Meat")
                     CategoryCard(imageName: "burger", title: "Fast Food")
                     CategoryCard(imageName: "fruit", title: "Fruits")
@@ -64,6 +64,18 @@ struct HomeView: View {
 
                 }
                 
+                Button {
+                    
+                } label: {
+                    Image("promo")
+                        .resizable()
+                        .scaledToFit()
+                        .padding(.vertical,10)
+                }
+                
+                TopRatingView()
+
+              
                 Spacer()
                 
             }
@@ -82,23 +94,52 @@ struct CategoryCard : View {
     let title : String
     
     var body: some View {
-        VStack {
-            Image(imageName)
-                .resizable()
-                .scaledToFit()
-                .padding(.top,15)
-                .padding(.horizontal,15)
-            Text(title)
-                .foregroundStyle(Color.black.opacity(0.8))
-                .font(.system(size: 12))
-                .fontWeight(.medium)
-                .padding(.bottom,15)
-
-        }
-        .frame(maxWidth: .infinity)
-        .background(Color.white)
-        .cornerRadius(20)
         
+        Button {
+            
+        } label: {
+            VStack {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.top,15)
+                    .padding(.horizontal,20)
+                Text(title)
+                    .foregroundStyle(Color.black.opacity(0.8))
+                    .font(.system(size: 12))
+                    .fontWeight(.medium)
+                    .padding(.bottom,15)
+                
+            }
+            .frame(maxWidth: .infinity)
+            .background(Color.white)
+            .cornerRadius(20)
+        }
+        
+        
+    }
+}
+
+struct TopRatingView: View {
+    var body: some View {
+        VStack {
+            HStack(alignment: .bottom) {
+                Text("Top Rated")
+                    .foregroundStyle(Color.black.opacity(0.8))
+                    .font(.system(size: 25))
+                    .fontWeight(.bold)
+                Spacer()
+                Button {
+                    
+                } label: {
+                    Text("See All")
+                        .foregroundStyle(Color.buttonBackground)
+                        .font(.system(size: 15))
+                        .fontWeight(.bold)
+                }
+
+            }
+        }
     }
 }
 
