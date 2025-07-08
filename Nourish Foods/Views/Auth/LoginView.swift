@@ -9,11 +9,11 @@
 import SwiftUI
 
 struct LoginView: View {
-    @State private var userId : String = ""
-    @State private var password : String = ""
-    @State private var navigateHome : Bool =  false
-    @State private var navigateRegister : Bool =  false
-    var loginAction: (Bool) -> Void
+    @StateObject private var authViewModel = AuthViewModel()
+    @State private var email: String = ""
+    @State private var password: String = ""
+    @State private var navigateHome: Bool = false
+    @State private var navigateRegister: Bool = false
     
     var body: some View {
         NavigationStack{
@@ -29,45 +29,44 @@ struct LoginView: View {
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(.white)
                             .opacity(0.7)
-                        
                     }
                     .padding(.top)
                     VStack{
-                        TextField("Username or Email", text: $password)
+                        TextField("Email", text: $email)
                             .foregroundColor(.black)
                             .padding()
                             .background(Color.white)
                             .cornerRadius(10)
-                        
-                        
-                        SecureField("Password", text: $userId)
+                        SecureField("Password", text: $password)
                             .foregroundColor(.black)
                             .padding()
                             .background(Color.white)
                             .cornerRadius(10)
-                        
-                        HStack{
-                            Spacer()
-                            Text("Sign In")
-                                .foregroundColor(.white)
-                                .fontWeight(.semibold)
-                                .font(.system(size: 18))
-                            Spacer()
+                        if let error = authViewModel.errorMessage {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.caption)
                         }
-                        .padding()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white, lineWidth: 2)
-                        )
-                        .onTapGesture {
-                            loginAction(true)
-                            
-                            navigateHome = true
-                            userId =  ""
-                            password = ""
+                        if authViewModel.isLoading {
+                            ProgressView()
                         }
-                        
-                        
+                        Button {
+                            authViewModel.login(email: email, password: password)
+                        } label: {
+                            HStack{
+                                Spacer()
+                                Text("Sign In")
+                                    .foregroundColor(.white)
+                                    .fontWeight(.semibold)
+                                    .font(.system(size: 18))
+                                Spacer()
+                            }
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                        }
                         HStack{
                             Spacer()
                             Text("Have an Account")
@@ -86,30 +85,34 @@ struct LoginView: View {
                             Spacer()
                         }
                         .padding(.top,10)
-                        
-                        
-                        
                     }
                     .padding(.horizontal)
                     .padding(.top)
-                    
-                    
                     Spacer()
-                    
                 }
+                // NavigationLinks
+                NavigationLink(destination: SignupView(), isActive: $navigateRegister) {
+                    EmptyView()
+                }
+                .hidden()
+                NavigationLink(destination: HomeView(), isActive: $navigateHome) {
+                    EmptyView()
+                }
+                .hidden()
             }
             .frame(maxWidth: .infinity , maxHeight: .infinity)
             .background(Color.buttonBackground)
             .ignoresSafeArea()
-            
+            .onChange(of: authViewModel.isAuthenticated) { isAuth in
+                if isAuth {
+                    navigateHome = true
+                }
+            }
         }
         .navigationBarBackButtonHidden(true)
     }
-    
 }
 
-
-
 #Preview {
-    LoginView(loginAction: {_ in })
+    LoginView()
 }
