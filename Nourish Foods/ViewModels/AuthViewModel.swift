@@ -15,9 +15,20 @@ class AuthViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isAuthenticated = false
+    @Published var currentUser: User?
     
     private var cancellables = Set<AnyCancellable>()
     private let db = Firestore.firestore()
+    
+    init() {
+        // Listen for authentication state changes
+        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            DispatchQueue.main.async {
+                self?.isAuthenticated = user != nil
+                self?.currentUser = user
+            }
+        }
+    }
     
     func login(email: String, password: String) {
         self.isLoading = true

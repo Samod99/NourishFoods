@@ -8,111 +8,229 @@
 import SwiftUI
 
 struct CartView: View {
+    @EnvironmentObject var cartViewModel: CartViewModel
+    
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            Text("Cart")
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-            CartItem()
-        }
-        .padding()
-        .safeAreaPadding(.top, 44)
-        .frame(maxWidth: .infinity)
-        .background(Color.viewBackground)
-        .ignoresSafeArea()
-
-    }
-}
-
-struct CartItem: View {
-    var body: some View {
-        VStack {
-            HStack(alignment: .top) {
-                Image("burger01")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 100)
-                    .padding(.leading,10)
-                VStack(alignment: .leading, spacing: 2){
-                    Text("Melting Cheese Pizza")
-                        .foregroundStyle(Color.black.opacity(0.8))
-                        .font(.system(size: 15))
+        VStack(spacing: 0) {
+            VStack {
+                HStack {
+                    Text("Cart")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                    
+                    Spacer()
+                    
+                    if !cartViewModel.isCartEmpty {
+                        Button("Clear All") {
+                            cartViewModel.clearCart()
+                        }
+                        .font(.system(size: 14))
+                        .foregroundColor(.red)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 10)
+                
+            }
+            .padding(.bottom, 10)
+            
+            if cartViewModel.isCartEmpty {
+                VStack(spacing: 20) {
+                    Image(systemName: "cart")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    
+                    Text("Your cart is empty")
+                        .font(.title3)
                         .fontWeight(.semibold)
-                    Text("Pizza Italiano")
-                        .foregroundStyle(Color.black.opacity(0.5))
-                        .font(.system(size: 12))
+                        .foregroundColor(.black)
                     
+                    Text("Add some delicious items to get started")
+                        .font(.body)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.viewBackground)
+            } else {
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 12) {
+                        ForEach(cartViewModel.cartItems) { item in
+                            CartItemView(item: item, cartViewModel: cartViewModel)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                
+                VStack(spacing: 0) {
+                    Divider()
                     
-                    HStack {
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text("Subtotal")
+                                .foregroundColor(.black)
+                            Spacer()
+                            Text(cartViewModel.formattedSubtotal)
+                                .foregroundColor(.black)
+                                .fontWeight(.semibold)
+                        }
                         
-                        Text("LKR 1890")
-                            .foregroundStyle(Color.black.opacity(0.8))
-                            .font(.system(size: 18))
-                            .fontWeight(.semibold)
-                            .padding(.top,5)
+                        HStack {
+                            Text("Delivery Fee")
+                                .foregroundColor(.black)
+                            Spacer()
+                            Text(cartViewModel.formattedDeliveryFee)
+                                .foregroundColor(.black)
+                                .fontWeight(.semibold)
+                        }
                         
-                        Spacer()
+                        Divider()
                         
-                        VStack {
+                        HStack {
+                            Text("Total")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+                            Spacer()
+                            Text(cartViewModel.formattedTotalAmount)
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+                        }
+                    }
+                    .padding()
+                    
+                    Button(action: {
+                        print("Checkout tapped")
+                    }) {
+                        HStack {
+                            Text("Proceed to Checkout")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
                             
                             Spacer()
                             
-                            HStack(spacing: 5) {
-                                
-                                Button {
-                                    
-                                } label: {
-                                    Image(systemName: "minus.square.fill")
-                                        .font(.system(size: 25))
-                                        .foregroundStyle(Color.buttonBackground)
-                                }
-                                
-                                Text("1")
-                                    .foregroundStyle(Color.black.opacity(0.8))
-                                    .font(.system(size: 22))
-                                
-                                Button {
-                                    
-                                } label: {
-                                    Image(systemName: "plus.app.fill")
-                                        .font(.system(size: 25))
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(Color.buttonBackground)
-                                }
-                                
-                            }
-                            .padding(.top,-10)
-                            .padding(.bottom,10)
+                            Text("(\(cartViewModel.totalItems) items)")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        .padding()
+                        .background(Color.buttonBackground)
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
+                }
+                .background(Color.white)
+            }
+        }
+        .background(Color.viewBackground)
+    }
+}
+
+struct CartItemView: View {
+    let item: CartItem
+    let cartViewModel: CartViewModel
+    
+    var body: some View {
+        VStack {
+            HStack(alignment: .top, spacing: 12) {
+                if let imageURL = item.product.imageURL, !imageURL.isEmpty {
+                    AsyncImage(url: URL(string: imageURL)) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        Image("burger01")
+                            .resizable()
+                            .scaledToFit()
+                    }
+                    .frame(width: 80, height: 80)
+                    .cornerRadius(8)
+                } else {
+                    Image("burger01")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .cornerRadius(8)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading) {
+                            
+                            Text(item.product.longName)
+                                .font(.system(size: 16))
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .lineLimit(2)
+                            
+                            Text(item.product.restaurantName)
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                            
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            cartViewModel.removeFromCart(item.product)
+                        }) {
+                            Image(systemName: "trash")
+                                .font(.system(size: 16))
+                                .foregroundColor(.red)
                         }
                         
                     }
+                    .frame(maxWidth: .infinity)
+                    
+                    HStack {
+                        Text(item.product.formattedPrice)
+                            .font(.system(size: 16))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.black)
+                        
+                        Spacer()
+                        
+                        HStack(spacing: 5) {
+                            Button(action: {
+                                cartViewModel.decrementQuantity(for: item.product)
+                            }) {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.buttonBackground)
+                            }
+                            
+                            Text("\(item.quantity)")
+                                .font(.system(size: 16))
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .frame(minWidth: 30)
+                            
+                            Button(action: {
+                                cartViewModel.incrementQuantity(for: item.product)
+                            }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.buttonBackground)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 4)
+                    
                 }
-                .padding(.top)
-
-                
-                Spacer()
-                
-                
-                
                 
             }
+            .padding(.horizontal)
+            .padding(.vertical,5)
         }
-        .frame(maxWidth: .infinity)
         .background(Color.white)
-        .cornerRadius(15)
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
 }
 
