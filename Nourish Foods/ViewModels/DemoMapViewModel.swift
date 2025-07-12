@@ -53,11 +53,11 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     func startDemo() {
         guard let current = currentLocation, let pickup = pickupLocation else { return }
         isRunning = true
-        status = "In Progress"
+        status = "Order Confirmed"
         currentStep = 0
         lastPickupLocation = pickup
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] t in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { [weak self] t in
             self?.movePickupCloser()
         }
     }
@@ -65,15 +65,36 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     private func movePickupCloser() {
         guard let current = currentLocation, let pickup = pickupLocation else { return }
         currentStep += 1
+        
+        // Update status based on progress
+        if currentStep < 10 {
+            status = "Order Confirmed"
+        } else if currentStep < 20 {
+            status = "Preparing Food"
+        } else if currentStep < 30 {
+            status = "Driver Picked Up"
+        } else if currentStep < 40 {
+            status = "On the Way"
+        } else if currentStep < 50 {
+            status = "Almost There"
+        } else if currentStep < 60 {
+            status = "Arriving Soon"
+        } else if currentStep >= 60 {
+            status = "Delivered"
+            isRunning = false
+            timer?.invalidate()
+            return
+        }
+        
+        // Move delivery location closer to destination
         let distanceToDestination = distance(from: pickup, to: current)
-        let moveDistance = min(distanceToDestination * 0.1, 100) // Move 10% of remaining distance or max 100m per step
+        let moveDistance = min(distanceToDestination * 0.2, 200) // Move 20% of remaining distance or max 200m per step
         let newPickup = moveToward(from: pickup, to: current, distance: moveDistance)
         pickupLocation = newPickup
         
-        if distance(from: newPickup, to: current) < 50 {
-            status = "Completed"
-            isRunning = false
-            timer?.invalidate()
+        // If very close to destination, snap to it
+        if distance(from: newPickup, to: current) < 10 {
+            pickupLocation = current
         }
     }
     

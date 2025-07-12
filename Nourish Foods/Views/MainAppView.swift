@@ -20,7 +20,7 @@ struct MainAppView: View {
                             SearchView()
                                 .environmentObject(cartViewModel)
                         case .delivery:
-                            DemoMapView()
+                            DeliveryTrackingView()
                                 .environmentObject(cartViewModel)
                         case .profile:
                             ProfileView()

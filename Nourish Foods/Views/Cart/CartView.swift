@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CartView: View {
     @EnvironmentObject var cartViewModel: CartViewModel
+    @State private var showingCheckout = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -65,7 +66,7 @@ struct CartView: View {
                             Text("Subtotal")
                                 .foregroundColor(.black)
                             Spacer()
-                            Text(cartViewModel.formattedSubtotal)
+                            Text(cartViewModel.subtotalString)
                                 .foregroundColor(.black)
                                 .fontWeight(.semibold)
                         }
@@ -74,7 +75,7 @@ struct CartView: View {
                             Text("Delivery Fee")
                                 .foregroundColor(.black)
                             Spacer()
-                            Text(cartViewModel.formattedDeliveryFee)
+                            Text(cartViewModel.deliveryFeeString)
                                 .foregroundColor(.black)
                                 .fontWeight(.semibold)
                         }
@@ -87,7 +88,7 @@ struct CartView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.black)
                             Spacer()
-                            Text(cartViewModel.formattedTotalAmount)
+                            Text(cartViewModel.totalAmountString)
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .foregroundColor(.black)
@@ -96,7 +97,7 @@ struct CartView: View {
                     .padding()
                     
                     Button(action: {
-                        print("Checkout tapped")
+                        showingCheckout = true
                     }) {
                         HStack {
                             Text("Proceed to Checkout")
@@ -120,8 +121,13 @@ struct CartView: View {
                 .background(Color.white)
             }
         }
-        .navigationTitle("Cart")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.viewBackground)
+        .navigationTitle("Cart")
+        .fullScreenCover(isPresented: $showingCheckout) {
+            CheckoutView()
+                .environmentObject(cartViewModel)
+        }
     }
 }
 
@@ -183,7 +189,7 @@ struct CartItemView: View {
                     .frame(maxWidth: .infinity)
                     
                     HStack {
-                        Text(item.product.formattedPrice)
+                        Text(item.formattedTotalPrice)
                             .font(.system(size: 16))
                             .fontWeight(.semibold)
                             .foregroundColor(.black)

@@ -87,6 +87,19 @@ class CartViewModel: ObservableObject {
         return subtotal + deliveryFee
     }
     
+    // String versions for checkout view
+    var subtotalString: String {
+        return String(format: "Rs. %.2f", subtotal)
+    }
+    
+    var deliveryFeeString: String {
+        return String(format: "Rs. %.2f", deliveryFee)
+    }
+    
+    var totalAmountString: String {
+        return String(format: "Rs. %.2f", totalAmount)
+    }
+    
     var formattedSubtotal: String {
         return String(format: "Rs. %.2f", subtotal)
     }
@@ -101,6 +114,12 @@ class CartViewModel: ObservableObject {
     
     var isCartEmpty: Bool {
         return cartItems.isEmpty
+    }
+    
+    // Additional properties for checkout
+    var isMultiRestaurantOrder: Bool {
+        let restaurantIds = Set(cartItems.map { $0.product.restaurantId })
+        return restaurantIds.count > 1
     }
     
     private func saveCartToStorage() {

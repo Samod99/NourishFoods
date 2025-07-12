@@ -16,7 +16,6 @@ struct HomeView: View {
     @State private var notificationBody = ""
     
     var body: some View {
-        let userName : String = AuthViewModel().currentUser?.displayName ?? ""
         
         ZStack {
             VStack {
@@ -81,6 +80,17 @@ struct HomeView: View {
                             .background(Color.white)
                             .cornerRadius(100)
                         }
+                        
+                        NavigationLink(value: NavigationDestination.delivery) {
+                            VStack {
+                                Image(systemName: "location.fill")
+                                    .foregroundStyle(Color.black)
+                                    .padding(10)
+                                    .fontWeight(.medium)
+                            }
+                            .background(Color.white)
+                            .cornerRadius(100)
+                        }
 
                         
                     }
@@ -105,23 +115,6 @@ struct HomeView: View {
                             .scaledToFit()
                             .padding(.vertical,10)
                     }
-                    
-                    // Test Notification Button (for debugging)
-                    Button {
-                        NotificationService.shared.sendTestNotification()
-                    } label: {
-                        HStack {
-                            Image(systemName: "bell.fill")
-                                .foregroundColor(.white)
-                            Text("Test Notification")
-                                .foregroundColor(.white)
-                                .fontWeight(.medium)
-                        }
-                        .padding()
-                        .background(Color.buttonBackground)
-                        .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
                     
                     // Top Rated Section
                     if !homeViewModel.topRatedProducts.isEmpty {
@@ -279,6 +272,8 @@ struct HomeCategoryCardView: View {
     @EnvironmentObject var cartViewModel: CartViewModel
     
     var body: some View {
+        NavigationLink(destination: ProductDetailView(product: product)
+            .environmentObject(cartViewModel)) {
             VStack {
                 Text(product.shortName)
                     .foregroundStyle(Color.black.opacity(0.8))
@@ -329,20 +324,20 @@ struct HomeCategoryCardView: View {
                     Button {
                         NotificationService.shared.sendAddToCartNotification(item: product.shortName)
                         cartViewModel.addToCart(product)
-
                     } label: {
                         Image(systemName: "plus.app.fill")
                             .foregroundStyle(Color.buttonBackground)
                             .font(.system(size: 36))
                     }
-
+                    .buttonStyle(PlainButtonStyle())
                 }
                 
             }
             .padding()
             .background(Color.white)
             .cornerRadius(20)
-      
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
