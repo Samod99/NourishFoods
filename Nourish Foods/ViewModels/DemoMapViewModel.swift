@@ -51,44 +51,56 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func startDemo() {
-        guard let current = currentLocation, let pickup = pickupLocation else { return }
+        // Ensure we have locations to work with
+        if currentLocation == nil {
+            let mock = CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612)
+            currentLocation = mock
+        }
+        
+        if pickupLocation == nil {
+            pickupLocation = generateRandomLocation(near: currentLocation!, maxDistanceMeters: 5000)
+        }
+        
         isRunning = true
         status = "Order Confirmed"
         currentStep = 0
-        lastPickupLocation = pickup
+        lastPickupLocation = pickupLocation
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { [weak self] t in
+        // Complete demo in 20 seconds: 20 steps * 1 second = 20 seconds
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] t in
             self?.movePickupCloser()
         }
     }
     
     private func movePickupCloser() {
+        // Ensure we have valid locations
         guard let current = currentLocation, let pickup = pickupLocation else { return }
+        
         currentStep += 1
         
-        // Update status based on progress
-        if currentStep < 10 {
+        // Update status based on progress - 20 steps total
+        if currentStep < 3 {
             status = "Order Confirmed"
-        } else if currentStep < 20 {
+        } else if currentStep < 6 {
             status = "Preparing Food"
-        } else if currentStep < 30 {
+        } else if currentStep < 10 {
             status = "Driver Picked Up"
-        } else if currentStep < 40 {
+        } else if currentStep < 14 {
             status = "On the Way"
-        } else if currentStep < 50 {
+        } else if currentStep < 17 {
             status = "Almost There"
-        } else if currentStep < 60 {
+        } else if currentStep < 20 {
             status = "Arriving Soon"
-        } else if currentStep >= 60 {
+        } else if currentStep >= 20 {
             status = "Delivered"
             isRunning = false
             timer?.invalidate()
             return
         }
         
-        // Move delivery location closer to destination
+        // Move delivery location closer to destination for live tracking
         let distanceToDestination = distance(from: pickup, to: current)
-        let moveDistance = min(distanceToDestination * 0.2, 200) // Move 20% of remaining distance or max 200m per step
+        let moveDistance = min(distanceToDestination * 0.3, 300) // Move 30% of remaining distance or max 300m per step
         let newPickup = moveToward(from: pickup, to: current, distance: moveDistance)
         pickupLocation = newPickup
         
@@ -96,6 +108,9 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         if distance(from: newPickup, to: current) < 10 {
             pickupLocation = current
         }
+        
+        // Force UI update
+        objectWillChange.send()
     }
     
     private func moveToward(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D, distance: Double) -> CLLocationCoordinate2D {

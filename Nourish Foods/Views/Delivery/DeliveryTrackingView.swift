@@ -42,8 +42,11 @@ struct DeliveryTrackingView: View {
                 if let current = viewModel.currentLocation, let pickup = viewModel.pickupLocation {
                     Map(coordinateRegion: Binding(
                         get: {
-                            MKCoordinateRegion(
-                                center: current,
+                            // Center map between current location and pickup location for better tracking view
+                            let centerLat = (current.latitude + pickup.latitude) / 2
+                            let centerLon = (current.longitude + pickup.longitude) / 2
+                            return MKCoordinateRegion(
+                                center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
                                 span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
                             )
                         }, set: { newRegion in
@@ -51,7 +54,7 @@ struct DeliveryTrackingView: View {
                         }),
                         annotationItems: [
                             MapPinItem(coordinate: current, color: .red, title: "Your Location", icon: "house.fill"),
-                            MapPinItem(coordinate: pickup, color: .green, title: "Restaurant", icon: "building.2.fill")
+                            MapPinItem(coordinate: pickup, color: .green, title: "Delivery", icon: "car.fill")
                         ]) { item in
                             MapAnnotation(coordinate: item.coordinate) {
                                 VStack(spacing: 2) {
@@ -87,7 +90,7 @@ struct DeliveryTrackingView: View {
                                 Text("Order #12345")
                                     .font(.headline)
                                     .fontWeight(.semibold)
-                                Text("Estimated delivery: 25-30 min")
+                                Text("Estimated delivery: 20 min")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
@@ -117,8 +120,8 @@ struct DeliveryTrackingView: View {
                                     .foregroundColor(.buttonBackground)
                             }
                             
-                            // Progress bar
-                            ProgressView(value: Double(viewModel.currentStep), total: 60)
+                            // Progress bar - updated to use 20 steps total
+                            ProgressView(value: Double(viewModel.currentStep), total: 20)
                                 .progressViewStyle(LinearProgressViewStyle(tint: .buttonBackground))
                                 .scaleEffect(y: 2)
                         }
@@ -158,7 +161,7 @@ struct DeliveryTrackingView: View {
                                 Text("ETA")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
-                                Text("\(max(0, 60 - viewModel.currentStep)) min")
+                                Text("\(max(0, 20 - viewModel.currentStep)) min")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.buttonBackground)
@@ -171,7 +174,7 @@ struct DeliveryTrackingView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             Spacer()
-                                                            Text("ETA: \(max(0, 60 - viewModel.currentStep)) min")
+                            Text("ETA: \(max(0, 20 - viewModel.currentStep)) min")
                                 .font(.subheadline)
                                 .foregroundColor(.buttonBackground)
                                 .fontWeight(.semibold)
@@ -189,17 +192,15 @@ struct DeliveryTrackingView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black)
-            .onAppear {
-                // Auto-start tracking when view appears
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    viewModel.startDemo()
-                }
+        .onAppear {
+            // Start tracking immediately when view appears
+            viewModel.startDemo()
+        }
+        .onChange(of: viewModel.status) { status in
+            if status == "Delivered" {
+                showingCompletionAlert = true
             }
-            .onChange(of: viewModel.status) { status in
-                if status == "Delivered" {
-                    showingCompletionAlert = true
-                }
-            }
+        }
             .alert("Delivery Complete!", isPresented: $showingCompletionAlert) {
                 Button("Great!") {
                     dismiss()
