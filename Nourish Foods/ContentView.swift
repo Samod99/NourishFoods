@@ -10,6 +10,8 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @StateObject private var dataInitializationVM = DataInitializationViewModel()
+    @StateObject private var authViewModel = AuthViewModel()
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
@@ -17,7 +19,21 @@ struct ContentView: View {
     private var items: FetchedResults<Item>
 
     var body: some View {
-        DemoMapView()
+        Group {
+            if authViewModel.isAuthenticated {
+                // User is signed in - show main app
+                MainAppView()
+                    .environmentObject(authViewModel)
+            } else {
+                // User is not signed in - show authentication
+                AuthenticationView()
+                    .environmentObject(authViewModel)
+            }
+        }
+        .task {
+            // Initialize sample data if needed when app starts
+            await dataInitializationVM.initializeSampleDataIfNeeded()
+        }
     }
 
     private func addItem() {

@@ -14,13 +14,7 @@ struct CartView: View {
         VStack(spacing: 0) {
             VStack {
                 HStack {
-                    Text("Cart")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
-                    
                     Spacer()
-                    
                     if !cartViewModel.isCartEmpty {
                         Button("Clear All") {
                             cartViewModel.clearCart()
@@ -126,6 +120,7 @@ struct CartView: View {
                 .background(Color.white)
             }
         }
+        .navigationTitle("Cart")
         .background(Color.viewBackground)
     }
 }
@@ -227,6 +222,7 @@ struct CartItemView: View {
             }
             .padding(.horizontal)
             .padding(.vertical,5)
+            .padding(.top,10)
         }
         .background(Color.white)
         .cornerRadius(12)

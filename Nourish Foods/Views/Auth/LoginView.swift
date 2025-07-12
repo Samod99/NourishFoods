@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject private var authViewModel = AuthViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var navigateHome: Bool = false
@@ -115,4 +115,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
+        .environmentObject(AuthViewModel())
 }
