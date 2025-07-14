@@ -4,7 +4,7 @@ import Combine
 
 class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var currentLocation: CLLocationCoordinate2D?
-    @Published var pickupLocation: CLLocationCoordinate2D?
+    @Published var deliveryLocation: CLLocationCoordinate2D? // User-selected delivery address
     @Published var status: String = "Ready"
     @Published var isRunning: Bool = false
     @Published var currentStep = 0
@@ -12,7 +12,6 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     private let locationManager = CLLocationManager()
     private var timer: Timer?
-    private var lastPickupLocation: CLLocationCoordinate2D?
     
     override init() {
         super.init()
@@ -24,8 +23,9 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let loc = locations.last {
             currentLocation = loc.coordinate
-            if pickupLocation == nil {
-                pickupLocation = generateRandomLocation(near: loc.coordinate, maxDistanceMeters: 5000)
+            // If delivery location is not set, default to current location
+            if deliveryLocation == nil {
+                deliveryLocation = loc.coordinate
             }
         }
     }
@@ -34,20 +34,13 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         // Fallback to mock location (Colombo)
         let mock = CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612)
         currentLocation = mock
-        if pickupLocation == nil {
-            pickupLocation = generateRandomLocation(near: mock, maxDistanceMeters: 5000)
+        if deliveryLocation == nil {
+            deliveryLocation = mock
         }
     }
     
-    func generateRandomLocation(near coordinate: CLLocationCoordinate2D, maxDistanceMeters: Double) -> CLLocationCoordinate2D {
-        let earthRadius = 6371000.0
-        let distance = Double.random(in: 1000...maxDistanceMeters)
-        let bearing = Double.random(in: 0...(2 * Double.pi))
-        let lat1 = coordinate.latitude * Double.pi / 180
-        let lon1 = coordinate.longitude * Double.pi / 180
-        let lat2 = asin(sin(lat1) * cos(distance / earthRadius) + cos(lat1) * sin(distance / earthRadius) * cos(bearing))
-        let lon2 = lon1 + atan2(sin(bearing) * sin(distance / earthRadius) * cos(lat1), cos(distance / earthRadius) - sin(lat1) * sin(lat2))
-        return CLLocationCoordinate2D(latitude: lat2 * 180 / Double.pi, longitude: lon2 * 180 / Double.pi)
+    func setDeliveryLocation(_ coordinate: CLLocationCoordinate2D) {
+        deliveryLocation = coordinate
     }
     
     func startDemo() {
@@ -56,25 +49,22 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             let mock = CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612)
             currentLocation = mock
         }
-        
-        if pickupLocation == nil {
-            pickupLocation = generateRandomLocation(near: currentLocation!, maxDistanceMeters: 5000)
+        if deliveryLocation == nil {
+            deliveryLocation = currentLocation
         }
-        
         isRunning = true
         status = "Order Confirmed"
         currentStep = 0
-        lastPickupLocation = pickupLocation
         timer?.invalidate()
         // Complete demo in 20 seconds: 20 steps * 1 second = 20 seconds
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] t in
-            self?.movePickupCloser()
+            self?.moveDeliveryCloser()
         }
     }
     
-    private func movePickupCloser() {
+    private func moveDeliveryCloser() {
         // Ensure we have valid locations
-        guard let current = currentLocation, let pickup = pickupLocation else { return }
+        guard let current = currentLocation, let delivery = deliveryLocation else { return }
         
         currentStep += 1
         
@@ -99,14 +89,14 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
         
         // Move delivery location closer to destination for live tracking
-        let distanceToDestination = distance(from: pickup, to: current)
+        let distanceToDestination = distance(from: delivery, to: current)
         let moveDistance = min(distanceToDestination * 0.3, 300) // Move 30% of remaining distance or max 300m per step
-        let newPickup = moveToward(from: pickup, to: current, distance: moveDistance)
-        pickupLocation = newPickup
+        let newDelivery = moveToward(from: delivery, to: current, distance: moveDistance)
+        deliveryLocation = newDelivery
         
         // If very close to destination, snap to it
-        if distance(from: newPickup, to: current) < 10 {
-            pickupLocation = current
+        if distance(from: newDelivery, to: current) < 10 {
+            deliveryLocation = current
         }
         
         // Force UI update
@@ -133,7 +123,7 @@ class DemoMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func reset() {
         if let current = currentLocation {
-            pickupLocation = generateRandomLocation(near: current, maxDistanceMeters: 5000)
+            deliveryLocation = current
         }
         status = "Ready"
         isRunning = false

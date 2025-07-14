@@ -72,6 +72,68 @@ struct ProfileView: View {
                     .cornerRadius(15)
                     .padding(.horizontal)
                     
+                    // Recent Orders Section
+                    let recentOrders = cartViewModel.fetchRecentOrders()
+                    if !recentOrders.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Recent Orders")
+                                .font(.headline)
+                                .padding(.leading)
+                            ForEach(recentOrders.prefix(5)) { order in
+                                Button(action: {
+                                    print("Order tapped: \(order.id)")
+                                }) {
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(order.date, style: .date)
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
+                                            Text("Total: Rs. \(String(format: "%.2f", order.total))")
+                                                .font(.subheadline)
+                                                .foregroundColor(.black)
+                                            Text("Status: \(order.status)")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.gray)
+                                    }
+                                    .padding(12)
+                                    .background(Color.white)
+                                    .cornerRadius(10)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding(.horizontal)
+                            }
+                        }
+                        .padding(.bottom)
+                    }
+                    
+                    // My Reviews Button
+                    Button(action: {
+                        print("My Reviews tapped")
+                    }) {
+                        HStack {
+                            Image(systemName: "star.bubble.fill")
+                                .foregroundColor(.yellow)
+                                .frame(width: 20)
+                            Text("My Reviews")
+                                .foregroundColor(.black)
+                                .fontWeight(.medium)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 12))
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     Spacer()
                     
                     // Sign Out Button

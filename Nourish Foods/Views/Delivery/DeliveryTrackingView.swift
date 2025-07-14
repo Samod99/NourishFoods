@@ -4,47 +4,59 @@ import MapKit
 struct DeliveryTrackingView: View {
     @StateObject private var viewModel = DemoMapViewModel()
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var cartViewModel: CartViewModel
     @State private var showingCompletionAlert = false
+    @State private var showingReview = false
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismissEnv
+    @Environment(\.scenePhase) var scenePhase
+    @Environment(\.openURL) var openURL
+    @State private var shouldNavigateHome = false
     
-        var body: some View {
+    var body: some View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Button("Done") {
-                    dismiss()
+                if viewModel.status != "Delivered" {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                } else {
+                    // Hide back button after delivery
+                    Spacer()
                 }
-                .foregroundColor(.white)
-                
                 Spacer()
-                
                 Text("Delivery Tracking")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                
                 Spacer()
-                
                 // Invisible spacer for centering
-                Button("Done") {
-                    dismiss()
+                if viewModel.status != "Delivered" {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.clear)
+                } else {
+                    Spacer()
                 }
-                .foregroundColor(.clear)
             }
             .padding()
             .background(Color.black)
             
             ZStack {
                 // Full screen map
-                if let current = viewModel.currentLocation, let pickup = viewModel.pickupLocation {
+                if let current = viewModel.currentLocation, let delivery = viewModel.deliveryLocation {
                     Map(coordinateRegion: Binding(
                         get: {
-                            // Center map between current location and pickup location for better tracking view
-                            let centerLat = (current.latitude + pickup.latitude) / 2
-                            let centerLon = (current.longitude + pickup.longitude) / 2
+                            // Center map between current location and delivery location for better tracking view
+                            let centerLat = (current.latitude + delivery.latitude) / 2
+                            let centerLon = (current.longitude + delivery.longitude) / 2
                             return MKCoordinateRegion(
                                 center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
                                 span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
@@ -54,7 +66,7 @@ struct DeliveryTrackingView: View {
                         }),
                         annotationItems: [
                             MapPinItem(coordinate: current, color: .red, title: "Your Location", icon: "house.fill"),
-                            MapPinItem(coordinate: pickup, color: .green, title: "Delivery", icon: "car.fill")
+                            MapPinItem(coordinate: delivery, color: .green, title: "Delivery", icon: "car.fill")
                         ]) { item in
                             MapAnnotation(coordinate: item.coordinate) {
                                 VStack(spacing: 2) {
@@ -198,7 +210,28 @@ struct DeliveryTrackingView: View {
         }
         .onChange(of: viewModel.status) { status in
             if status == "Delivered" {
-                showingCompletionAlert = true
+                showingReview = true
+            }
+        }
+        .fullScreenCover(isPresented: $showingReview, onDismiss: {
+            // After review, go to HomeView and clear navigation stack
+            shouldNavigateHome = true
+        }) {
+            ReviewView(onSubmit: { rating, comment in
+                // Save review logic here if needed
+                showingReview = false
+            }, onCancel: {
+                showingReview = false
+            })
+        }
+        .onChange(of: shouldNavigateHome) { goHome in
+            if goHome {
+                // Reset navigation to HomeView
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first {
+                    window.rootViewController = UIHostingController(rootView: MainAppView().environmentObject(AuthViewModel()))
+                    window.makeKeyAndVisible()
+                }
             }
         }
             .alert("Delivery Complete!", isPresented: $showingCompletionAlert) {

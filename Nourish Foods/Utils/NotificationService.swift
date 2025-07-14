@@ -1,6 +1,7 @@
 import Foundation
 import UserNotifications
 import SwiftUI
+import CoreLocation
 
 class NotificationService {
     static let shared = NotificationService()
@@ -106,5 +107,31 @@ class NotificationService {
                 print("Notification sent successfully: \(title)")
             }
         }
+    }
+}
+
+class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
+    static let shared = LocationService()
+    private let locationManager = CLLocationManager()
+    @Published var currentLocation: CLLocationCoordinate2D?
+    
+    override private init() {
+        super.init()
+        locationManager.delegate = self
+    }
+    
+    func requestPermission() {
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let loc = locations.last {
+            currentLocation = loc.coordinate
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location error: \(error.localizedDescription)")
     }
 } 

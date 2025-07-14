@@ -15,6 +15,7 @@ class CartViewModel: ObservableObject {
     
     private let userDefaults = UserDefaults.standard
     private let cartKey = "savedCartItems"
+    private let ordersKey = "recentOrders"
     
     init() {
         loadCartFromStorage()
@@ -70,6 +71,25 @@ class CartViewModel: ObservableObject {
         saveCartToStorage()
     }
     
+    func completeOrder() {
+        let order = Order(items: cartItems, total: totalAmount, status: "Delivered")
+        saveOrder(order)
+        clearCart()
+    }
+    
+    private func saveOrder(_ order: Order) {
+        var orders = fetchRecentOrders()
+        orders.insert(order, at: 0)
+        if orders.count > 10 { orders = Array(orders.prefix(10)) }
+        if let data = try? JSONEncoder().encode(orders) {
+            userDefaults.set(data, forKey: ordersKey)
+        }
+    }
+    
+    func fetchRecentOrders() -> [Order] {
+        guard let data = userDefaults.data(forKey: ordersKey) else { return [] }
+        return (try? JSONDecoder().decode([Order].self, from: data)) ?? []
+    }
     
     var totalItems: Int {
         return cartItems.reduce(0) { $0 + $1.quantity }
