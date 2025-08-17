@@ -4,49 +4,109 @@ struct MainAppView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var dataInitializationVM = DataInitializationViewModel()
     @StateObject private var cartViewModel = CartViewModel()
+    @StateObject private var healthViewModel = HealthTrackingViewModel()
+    @State private var selectedTab = 0
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                // Main Content
+        ZStack {
+            TabView(selection: $selectedTab) {
+                            // Home Tab
+            NavigationStack {
                 HomeView()
                     .environmentObject(cartViewModel)
+                    .environmentObject(healthViewModel)
+                    .environmentObject(authViewModel)
                     .navigationDestination(for: NavigationDestination.self) { destination in
                         switch destination {
                         case .cart:
                             CartView()
                                 .environmentObject(cartViewModel)
+                                .environmentObject(authViewModel)
+                                .environmentObject(healthViewModel)
                         case .search:
                             SearchView()
                                 .environmentObject(cartViewModel)
+                                .environmentObject(healthViewModel)
+                                .environmentObject(authViewModel)
                         case .delivery:
                             DeliveryTrackingView()
                                 .environmentObject(cartViewModel)
+                                .environmentObject(authViewModel)
+                                .environmentObject(healthViewModel)
                         case .profile:
                             ProfileView()
                                 .environmentObject(cartViewModel)
+                                .environmentObject(authViewModel)
+                                .environmentObject(healthViewModel)
                         }
                     }
-                
-                // Show initialization overlay if needed
-                if dataInitializationVM.isInitializing {
-                    VStack {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .padding()
-                        
-                        Text(dataInitializationVM.initializationMessage)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                            .multilineTextAlignment(.center)
-                            .padding()
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.3))
-                    .cornerRadius(12)
-                    .padding()
-                }
             }
+                .tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Home")
+                }
+                .tag(0)
+                
+                            // Health Tab
+            HealthDashboardView(healthViewModel: healthViewModel)
+                .environmentObject(cartViewModel)
+                .environmentObject(authViewModel)
+                .tabItem {
+                    Image(systemName: "heart.fill")
+                    Text("Health")
+                }
+                .tag(1)
+            
+            // Cart Tab
+            CartView()
+                .environmentObject(cartViewModel)
+                .environmentObject(authViewModel)
+                .environmentObject(healthViewModel)
+                .tabItem {
+                    Image(systemName: "cart.fill")
+                    Text("Cart")
+                }
+                .tag(2)
+            
+            // Profile Tab
+            ProfileView()
+                .environmentObject(cartViewModel)
+                .environmentObject(authViewModel)
+                .environmentObject(healthViewModel)
+                .tabItem {
+                    Image(systemName: "person.fill")
+                    Text("Profile")
+                }
+                .tag(3)
+                    }
+        .accentColor(.buttonBackground)
+        .onAppear {
+            // Initial connection of ViewModels with AuthViewModel
+            cartViewModel.authViewModel = authViewModel
+        }
+        .onReceive(authViewModel.$isAuthenticated) { _ in
+            // Connect ViewModels with AuthViewModel whenever authentication state changes
+            cartViewModel.authViewModel = authViewModel
+        }
+        
+        // Show initialization overlay if needed
+        if dataInitializationVM.isInitializing {
+            VStack {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .padding()
+                
+                Text(dataInitializationVM.initializationMessage)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
+                    .padding()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black.opacity(0.3))
+            .cornerRadius(12)
+            .padding()
+        }
         }
         .task {
             // Initialize sample data if needed when app starts

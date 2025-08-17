@@ -9,6 +9,8 @@ import SwiftUI
 
 struct CartView: View {
     @EnvironmentObject var cartViewModel: CartViewModel
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var healthViewModel: HealthTrackingViewModel
     @State private var showingCheckout = false
     
     var body: some View {
@@ -127,6 +129,8 @@ struct CartView: View {
         .fullScreenCover(isPresented: $showingCheckout) {
             CheckoutView()
                 .environmentObject(cartViewModel)
+                .environmentObject(authViewModel)
+                .environmentObject(healthViewModel)
         }
     }
 }
@@ -139,17 +143,11 @@ struct CartItemView: View {
         VStack {
             HStack(alignment: .top, spacing: 12) {
                 if let imageURL = item.product.imageURL, !imageURL.isEmpty {
-                    AsyncImage(url: URL(string: imageURL)) { image in
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    } placeholder: {
-                        Image("burger01")
-                            .resizable()
-                            .scaledToFit()
-                    }
-                    .frame(width: 80, height: 80)
-                    .cornerRadius(8)
+                    Image(imageURL)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 80, height: 80)
+                        .cornerRadius(8)
                 } else {
                     Image("burger01")
                         .resizable()

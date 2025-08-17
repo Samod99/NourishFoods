@@ -3,7 +3,7 @@ import SwiftUI
 
 @MainActor
 class HomeViewModel: ObservableObject {
-    @Published var topRatedProducts: [FoodProduct] = []
+    @Published var healthyFoods: [FoodProduct] = []
     @Published var bestSalesProducts: [FoodProduct] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -29,16 +29,13 @@ class HomeViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            // Load top rated products (products with highest ratings)
             let allProducts = try await firestoreService.fetchAvailableFoodProducts()
-            topRatedProducts = Array(allProducts.prefix(6)) // Show top 6 products
-            
-            // Load best sales products (products with highest calories - simulating popularity)
+            // Healthy foods: vegetarian, salads, fruits, soups
+            healthyFoods = allProducts.filter { [.vegetarian, .salads, .fruits, .soups].contains($0.productType) }.prefix(6).map { $0 }
             bestSalesProducts = allProducts
                 .sorted { $0.calories > $1.calories }
                 .prefix(6)
                 .map { $0 }
-            
         } catch {
             errorMessage = "Failed to load data: \(error.localizedDescription)"
             print("❌ Error loading home data: \(error)")

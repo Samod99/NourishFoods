@@ -2,6 +2,8 @@ import SwiftUI
 
 struct CheckoutView: View {
     @EnvironmentObject var cartViewModel: CartViewModel
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var healthViewModel: HealthTrackingViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeliveryTracking = false
     @State private var selectedPaymentMethod = PaymentMethod.creditCard
@@ -291,16 +293,22 @@ struct CheckoutView: View {
         
         // Simulate payment processing
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            isProcessingPayment = false
-            
-            // Simulate 90% success rate
-            if Double.random(in: 0...1) < 0.9 {
-                showingPaymentSuccess = true
-                // Clear cart after successful payment
-                cartViewModel.clearCart()
-            } else {
-                errorMessage = "Payment failed. Please check your card details and try again."
-                showingPaymentError = true
+            // Complete the order with delivery information
+            cartViewModel.completeOrder(
+                deliveryAddress: deliveryAddress,
+                paymentMethod: selectedPaymentMethod.rawValue,
+                healthViewModel: healthViewModel
+            ) { success in
+                DispatchQueue.main.async {
+                    isProcessingPayment = false
+                    
+                    if success {
+                        showingPaymentSuccess = true
+                    } else {
+                        errorMessage = "Failed to place order. Please try again."
+                        showingPaymentError = true
+                    }
+                }
             }
         }
     }
@@ -309,4 +317,5 @@ struct CheckoutView: View {
 #Preview {
     CheckoutView()
         .environmentObject(CartViewModel())
+        .environmentObject(AuthViewModel())
 } 

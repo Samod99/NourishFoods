@@ -88,17 +88,11 @@ struct ProductDetailView: View {
     private var productImageSection: some View {
         ZStack {
             if let imageURL = product.imageURL, !imageURL.isEmpty {
-                AsyncImage(url: URL(string: imageURL)) { image in
-                    image
-                        .resizable()
-                        .scaledToFill()
-                } placeholder: {
-                    Image("burger01")
-                        .resizable()
-                        .scaledToFit()
-                }
-                .frame(height: 300)
-                .clipped()
+                Image(imageURL)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 300)
+                    .clipped()
             } else {
                 Image("burger01")
                     .resizable()

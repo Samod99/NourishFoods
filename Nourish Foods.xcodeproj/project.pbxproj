@@ -272,6 +272,12 @@
 				DEVELOPMENT_TEAM = 78JZS6XRF4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Nourish-Foods-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app needs your location to track deliveries and show your position on the map always";
+				INFOPLIST_KEY_NSLocationUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -301,6 +307,12 @@
 				DEVELOPMENT_TEAM = 78JZS6XRF4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Nourish-Foods-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app needs your location to track deliveries and show your position on the map always";
+				INFOPLIST_KEY_NSLocationUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

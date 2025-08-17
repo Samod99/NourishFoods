@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ReviewView: View {
+struct ReviewView1: View {
     @State private var rating: Int = 0
     @State private var comment: String = ""
     var onSubmit: ((Int, String) -> Void)?

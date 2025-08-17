@@ -27,8 +27,8 @@ struct Nourish_FoodsApp: App {
                 print("❌ Notification permission denied")
             }
         }
-        // Request location permission at app launch
-        LocationService.shared.requestPermission()
+        // Request location permission at app launch using LocationManager
+        AppLocationManager.shared.requestLocationPermission()
     }
 
     var body: some Scene {

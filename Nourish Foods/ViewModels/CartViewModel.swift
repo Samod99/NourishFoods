@@ -16,6 +16,7 @@ class CartViewModel: ObservableObject {
     private let userDefaults = UserDefaults.standard
     private let cartKey = "savedCartItems"
     private let ordersKey = "recentOrders"
+    @Published var authViewModel: AuthViewModel?
     
     init() {
         loadCartFromStorage()
@@ -71,10 +72,41 @@ class CartViewModel: ObservableObject {
         saveCartToStorage()
     }
     
-    func completeOrder() {
-        let order = Order(items: cartItems, total: totalAmount, status: "Delivered")
-        saveOrder(order)
-        clearCart()
+    func completeOrder(deliveryAddress: String? = nil, paymentMethod: String? = nil, healthViewModel: HealthTrackingViewModel? = nil, completion: @escaping (Bool) -> Void = { _ in }) {
+        // Create UserOrder for authenticated users
+        if let authViewModel = authViewModel, 
+           let userId = authViewModel.currentUser?.uid,
+           authViewModel.isAuthenticated {
+            let userOrder = UserOrder(
+                userId: userId,
+                items: cartItems,
+                total: totalAmount,
+                deliveryFee: deliveryFee,
+                deliveryAddress: deliveryAddress,
+                paymentMethod: paymentMethod
+            )
+            
+            authViewModel.saveOrder(userOrder) { success in
+                DispatchQueue.main.async {
+                    if success {
+                        // Track calories for health monitoring
+                        healthViewModel?.trackPurchase(self.cartItems)
+                        self.clearCart()
+                        completion(true)
+                    } else {
+                        completion(false)
+                    }
+                }
+            }
+        } else {
+            // Fallback for non-authenticated users (local storage)
+            let order = Order(items: cartItems, total: totalAmount, status: "Delivered")
+            saveOrder(order)
+            // Track calories for health monitoring
+            healthViewModel?.trackPurchase(self.cartItems)
+            clearCart()
+            completion(true)
+        }
     }
     
     private func saveOrder(_ order: Order) {

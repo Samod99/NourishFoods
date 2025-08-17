@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import LocalAuthentication
 
 struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
@@ -14,6 +15,8 @@ struct LoginView: View {
     @State private var password: String = ""
     @State private var navigateHome: Bool = false
     @State private var navigateRegister: Bool = false
+    @State private var showFaceIDError: Bool = false
+    @State private var faceIDErrorMessage: String = ""
     
     var body: some View {
         NavigationStack{
@@ -105,11 +108,41 @@ struct LoginView: View {
             .ignoresSafeArea()
             .onChange(of: authViewModel.isAuthenticated) { isAuth in
                 if isAuth {
-                    navigateHome = true
+                    authenticateWithFaceID()
                 }
+            }
+            .alert("Face ID Error", isPresented: $showFaceIDError) {
+                Button("OK") {
+                    showFaceIDError = false
+                }
+            } message: {
+                Text(faceIDErrorMessage)
             }
         }
         .navigationBarBackButtonHidden(true)
+    }
+    
+    private func authenticateWithFaceID() {
+        let context = LAContext()
+        var error: NSError?
+        let reason = "Authenticate with Face ID to continue."
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+                DispatchQueue.main.async {
+                    if success {
+                        navigateHome = true
+                    } else {
+                        faceIDErrorMessage = authenticationError?.localizedDescription ?? "Face ID authentication failed."
+                        showFaceIDError = true
+                        // Optionally, sign out user if Face ID fails
+                        authViewModel.signOut()
+                    }
+                }
+            }
+        } else {
+            // If Face ID/Touch ID not available, fallback to normal navigation
+            navigateHome = true
+        }
     }
 }
 

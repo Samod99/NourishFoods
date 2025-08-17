@@ -53,6 +53,16 @@ class NotificationService {
         sendNotification(title: title, body: body)
     }
     
+    func sendCalorieAlertNotification(title: String, body: String) {
+        sendNotification(title: title, body: body)
+    }
+    
+    func sendHealthRecommendationNotification(recommendation: String) {
+        let title = "Health Tip"
+        let body = recommendation
+        sendNotification(title: title, body: body)
+    }
+    
     func sendTestNotification() {
         sendNotification(title: "Test Notification", body: "This is a test notification to verify the system is working.")
     }
@@ -110,28 +120,4 @@ class NotificationService {
     }
 }
 
-class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
-    static let shared = LocationService()
-    private let locationManager = CLLocationManager()
-    @Published var currentLocation: CLLocationCoordinate2D?
-    
-    override private init() {
-        super.init()
-        locationManager.delegate = self
-    }
-    
-    func requestPermission() {
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let loc = locations.last {
-            currentLocation = loc.coordinate
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location error: \(error.localizedDescription)")
-    }
-} 
+ 

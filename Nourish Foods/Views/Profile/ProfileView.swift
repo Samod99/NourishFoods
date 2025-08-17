@@ -12,182 +12,224 @@ struct ProfileView: View {
     @EnvironmentObject var cartViewModel: CartViewModel
     @State private var showingSignOutAlert = false
     @State private var showingNotificationAlert = false
+    @State private var showingEditProfile = false
+    @State private var showingReviews = false
+    @State private var showingOrderHistory = false
     @State private var notificationStatus: UNAuthorizationStatus = .notDetermined
     
     var body: some View {
-            ZStack {
-                VStack {
-                    // Profile Header
-                    HStack(spacing: 15) {
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 80, height: 80)
-                            .overlay(
-                                Image(systemName: "person.fill")
-                                    .foregroundColor(.gray)
-                                    .font(.system(size: 30))
-                            )
+        ZStack {
+            VStack {
+                // Profile Header
+                HStack(spacing: 15) {
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 80, height: 80)
+                        .overlay(
+                            Group {
+                                if let profileImageURL = authViewModel.userProfile?.profileImageURL, !profileImageURL.isEmpty {
+                                    AsyncImage(url: URL(string: profileImageURL)) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .clipShape(Circle())
+                                    } placeholder: {
+                                        Image(systemName: "person.fill")
+                                            .foregroundColor(.gray)
+                                            .font(.system(size: 30))
+                                    }
+                                } else {
+                                    Image(systemName: "person.fill")
+                                        .foregroundColor(.gray)
+                                        .font(.system(size: 30))
+                                }
+                            }
+                        )
+                    
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(authViewModel.userProfile?.name ?? authViewModel.currentUser?.displayName ?? "User")
+                            .foregroundStyle(Color.black.opacity(0.8))
+                            .font(.system(size: 20))
+                            .fontWeight(.semibold)
+                        Text(authViewModel.userProfile?.email ?? authViewModel.currentUser?.email ?? "user@example.com")
+                            .font(.system(size: 15))
+                            .fontWeight(.regular)
+                            .foregroundStyle(Color.black.opacity(0.5))
                         
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(authViewModel.currentUser?.displayName ?? "User")
-                                .foregroundStyle(Color.black.opacity(0.8))
-                                .font(.system(size: 20))
-                                .fontWeight(.semibold)
-                            Text(authViewModel.currentUser?.email ?? "user@example.com")
-                                .font(.system(size: 15))
+                        if let mobile = authViewModel.userProfile?.mobile, !mobile.isEmpty {
+                            Text(mobile)
+                                .font(.system(size: 14))
                                 .fontWeight(.regular)
                                 .foregroundStyle(Color.black.opacity(0.5))
                         }
-                        Spacer()
                     }
-                    .padding()
+                    Spacer()
+                }
+                .padding()
+                
+                // Profile Options
+                VStack(spacing: 0) {
+                    ProfileOptionRow(icon: "person.fill", title: "Edit Profile", action: {
+                        showingEditProfile = true
+                    })
                     
-                    // Profile Options
-                    VStack(spacing: 0) {
-                        ProfileOptionRow(icon: "person.fill", title: "Edit Profile", action: {
-                            // TODO: Implement edit profile
-                        })
-                        
-                        ProfileOptionRow(icon: "bell.fill", title: "Notifications", action: {
-                            handleNotificationSettings()
-                        })
-                        
-                        ProfileOptionRow(icon: "location.fill", title: "Delivery Address", action: {
-                            // TODO: Implement delivery address
-                        })
-                        
-                        ProfileOptionRow(icon: "creditcard.fill", title: "Payment Methods", action: {
-                            // TODO: Implement payment methods
-                        })
-                        
-                        ProfileOptionRow(icon: "questionmark.circle.fill", title: "Help & Support", action: {
-                            // TODO: Implement help & support
-                        })
-                        
-                        ProfileOptionRow(icon: "info.circle.fill", title: "About", action: {
-                            // TODO: Implement about
-                        })
-                    }
-                    .background(Color.white)
-                    .cornerRadius(15)
-                    .padding(.horizontal)
+                    ProfileOptionRow(icon: "bell.fill", title: "Notifications", action: {
+                        handleNotificationSettings()
+                    })
                     
-                    // Recent Orders Section
-                    let recentOrders = cartViewModel.fetchRecentOrders()
-                    if !recentOrders.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
+                    ProfileOptionRow(icon: "location.fill", title: "Delivery Address", action: {
+                        // TODO: Implement delivery address
+                    })
+                    
+                    ProfileOptionRow(icon: "creditcard.fill", title: "Payment Methods", action: {
+                        // TODO: Implement payment methods
+                    })
+                    
+                    ProfileOptionRow(icon: "questionmark.circle.fill", title: "Help & Support", action: {
+                        // TODO: Implement help & support
+                    })
+                    
+                    ProfileOptionRow(icon: "info.circle.fill", title: "About", action: {
+                        // TODO: Implement about
+                    })
+                }
+                .background(Color.white)
+                .cornerRadius(15)
+                .padding(.horizontal)
+                
+                // Recent Orders Section
+                if !authViewModel.userOrders.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
                             Text("Recent Orders")
                                 .font(.headline)
-                                .padding(.leading)
-                            ForEach(recentOrders.prefix(5)) { order in
-                                Button(action: {
-                                    print("Order tapped: \(order.id)")
-                                }) {
-                                    HStack {
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(order.date, style: .date)
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                            Text("Total: Rs. \(String(format: "%.2f", order.total))")
-                                                .font(.subheadline)
-                                                .foregroundColor(.black)
-                                            Text("Status: \(order.status)")
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                        }
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(.gray)
-                                    }
-                                    .padding(12)
-                                    .background(Color.white)
-                                    .cornerRadius(10)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                .padding(.horizontal)
-                            }
-                        }
-                        .padding(.bottom)
-                    }
-                    
-                    // My Reviews Button
-                    Button(action: {
-                        print("My Reviews tapped")
-                    }) {
-                        HStack {
-                            Image(systemName: "star.bubble.fill")
-                                .foregroundColor(.yellow)
-                                .frame(width: 20)
-                            Text("My Reviews")
-                                .foregroundColor(.black)
-                                .fontWeight(.medium)
                             Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.gray)
-                                .font(.system(size: 12))
+                            Button("View All") {
+                                showingOrderHistory = true
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.buttonBackground)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 15)
-                        .background(Color.white)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Spacer()
-                    
-                    // Sign Out Button
-                    Button(action: {
-                        showingSignOutAlert = true
-                    }) {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                                .foregroundColor(.red)
-                            Text("Sign Out")
-                                .foregroundColor(.red)
-                                .fontWeight(.semibold)
+                        .padding(.leading)
+                        
+                        ForEach(authViewModel.userOrders.prefix(3)) { order in
+                            Button(action: {
+                                print("Order tapped: \(order.id)")
+                            }) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(order.date, style: .date)
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                        Text("Total: Rs. \(String(format: "%.2f", order.total))")
+                                            .font(.subheadline)
+                                            .foregroundColor(.black)
+                                        Text("Status: \(order.status.rawValue)")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding(12)
+                                .background(Color.white)
+                                .cornerRadius(10)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.red, lineWidth: 1)
-                        )
                     }
-                    .padding(.horizontal)
                     .padding(.bottom)
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.viewBackground)
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.large)
-            .alert("Sign Out", isPresented: $showingSignOutAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Sign Out", role: .destructive) {
-                    authViewModel.signOut()
-                }
-            } message: {
-                Text("Are you sure you want to sign out?")
-            }
-            .alert("Notification Settings", isPresented: $showingNotificationAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Open Settings") {
-                    openAppSettings()
-                }
-                if notificationStatus == .denied {
-                    Button("Request Permission") {
-                        requestNotificationPermission()
+                
+                // My Reviews Button
+                Button(action: {
+                    showingReviews = true
+                }) {
+                    HStack {
+                        Image(systemName: "star.bubble.fill")
+                            .foregroundColor(.yellow)
+                            .frame(width: 20)
+                        Text("My Reviews (\(authViewModel.userReviews.count))")
+                            .foregroundColor(.black)
+                            .fontWeight(.medium)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 12))
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .padding(.horizontal)
                 }
-            } message: {
-                Text(getNotificationStatusMessage())
+                .buttonStyle(PlainButtonStyle())
+                
+                Spacer()
+                
+                // Sign Out Button
+                Button(action: {
+                    showingSignOutAlert = true
+                }) {
+                    HStack {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .foregroundColor(.red)
+                        Text("Sign Out")
+                            .foregroundColor(.red)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.red, lineWidth: 1)
+                    )
+                }
+                .padding(.horizontal)
+                .padding(.bottom)
             }
-            .task {
-                checkNotificationStatus()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.viewBackground)
+        .navigationTitle("Profile")
+        .navigationBarTitleDisplayMode(.large)
+        .sheet(isPresented: $showingEditProfile) {
+            EditProfileView(authViewModel: authViewModel)
+        }
+        .sheet(isPresented: $showingReviews) {
+            UserReviewsView(authViewModel: authViewModel)
+        }
+        .sheet(isPresented: $showingOrderHistory) {
+            OrderHistoryView(authViewModel: authViewModel)
+        }
+        .alert("Sign Out", isPresented: $showingSignOutAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Sign Out", role: .destructive) {
+                authViewModel.signOut()
             }
+        } message: {
+            Text("Are you sure you want to sign out?")
+        }
+        .alert("Notification Settings", isPresented: $showingNotificationAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Open Settings") {
+                openAppSettings()
+            }
+            if notificationStatus == .denied {
+                Button("Request Permission") {
+                    requestNotificationPermission()
+                }
+            }
+        } message: {
+            Text(getNotificationStatusMessage())
+        }
+        .task {
+            checkNotificationStatus()
+        }
     }
     
     private func handleNotificationSettings() {
@@ -270,7 +312,8 @@ struct ProfileOptionRow: View {
     }
 }
 
-
 #Preview {
     ProfileView()
+        .environmentObject(AuthViewModel())
+        .environmentObject(CartViewModel())
 }
