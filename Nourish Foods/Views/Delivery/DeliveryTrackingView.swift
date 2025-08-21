@@ -7,10 +7,12 @@ struct DeliveryTrackingView: View {
     @EnvironmentObject var cartViewModel: CartViewModel
     @State private var showingCompletionAlert = false
     @State private var showingReview = false
+    @State private var orderNumber = String(format: "%04d", Int.random(in: 1000...9999))
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+    @State private var lastManualRegionChange: Date = .distantPast
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.dismiss) var dismissEnv
     @Environment(\.scenePhase) var scenePhase
@@ -21,7 +23,7 @@ struct DeliveryTrackingView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+            // Header section
             HStack {
                 if viewModel.status != "Delivered" {
                     Button("Done") {
@@ -52,13 +54,18 @@ struct DeliveryTrackingView: View {
             .background(Color.black)
             
             ZStack {
-                // Full screen map
-                Map(coordinateRegion: Binding(
-                    get: {
-                        viewModel.getMapRegion()
-                    }, set: { newRegion in
-                        region = newRegion
-                    }),
+                // Map view
+                Map(
+                    coordinateRegion: Binding(
+                        get: { region },
+                        set: { newRegion in
+                            region = newRegion
+                            lastManualRegionChange = Date()
+                        }
+                    ),
+                    interactionModes: .all,
+                    showsUserLocation: false,
+                    userTrackingMode: .constant(.none),
                     annotationItems: viewModel.getMapAnnotations()
                 ) { item in
                     MapAnnotation(coordinate: item.coordinate) {
@@ -81,14 +88,34 @@ struct DeliveryTrackingView: View {
                     }
                 }
                 .ignoresSafeArea()
+                // Map region synchronization
+                .onReceive(viewModel.$driverLocation) { _ in
+                    // Auto-center during active tracking
+                    if viewModel.isRunning && !viewModel.isPaused {
+                        if Date().timeIntervalSince(lastManualRegionChange) > 2 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                region = viewModel.getMapRegion()
+                            }
+                        }
+                    }
+                }
+                .onReceive(viewModel.$deliveryLocation) { _ in
+                    if viewModel.isRunning && !viewModel.isPaused {
+                        if Date().timeIntervalSince(lastManualRegionChange) > 2 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                region = viewModel.getMapRegion()
+                            }
+                        }
+                    }
+                }
                 
-                // Top overlay with order info
+                // Order information overlay
                 VStack {
-                    // Order info card
+                    // Order details card
                     VStack(spacing: 12) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Order #\(String(format: "%04d", Int.random(in: 1000...9999)))")
+                                Text("Order #\(orderNumber)")
                                     .font(.headline)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.black)
@@ -137,7 +164,7 @@ struct DeliveryTrackingView: View {
                             }
                         }
                         
-                        // Progress bar
+                        // Delivery progress indicator
                         ProgressView(value: viewModel.totalDistance > 0 ? viewModel.distanceTraveled / viewModel.totalDistance : 0, total: 1.0)
                             .progressViewStyle(LinearProgressViewStyle(tint: .buttonBackground))
                             .scaleEffect(y: 2)
@@ -149,7 +176,7 @@ struct DeliveryTrackingView: View {
                     
                     Spacer()
                     
-                    // Bottom action buttons
+                    // Action buttons for completed delivery
                     if viewModel.status == "Delivered" {
                         VStack(spacing: 12) {
                             Button(action: {
@@ -181,83 +208,26 @@ struct DeliveryTrackingView: View {
                         .background(Color.white)
                         .cornerRadius(12)
                         .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-                    } else if !viewModel.isRunning {
-                        Button(action: {
-                            if viewModel.deliveryLocation == nil {
-                                showLocationAlert = true
-                            } else {
-                                viewModel.startDelivery()
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "play.fill")
-                                Text("Start Delivery")
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(viewModel.deliveryLocation == nil ? Color.gray : Color.buttonBackground)
-                            .cornerRadius(12)
-                        }
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-                        .disabled(viewModel.deliveryLocation == nil)
-                    } else {
-                        // Delivery in progress - show pause/resume and reset buttons
-                        HStack(spacing: 12) {
-                            Button(action: {
-                                viewModel.togglePause()
-                            }) {
-                                HStack {
-                                    Image(systemName: viewModel.isPaused ? "play.fill" : "pause.fill")
-                                    Text(viewModel.isPaused ? "Resume" : "Pause")
-                                }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.orange)
-                                .cornerRadius(12)
-                            }
-                            
-                            Button(action: {
-                                viewModel.reset()
-                            }) {
-                                HStack {
-                                    Image(systemName: "arrow.clockwise")
-                                    Text("Reset")
-                                }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.red)
-                                .cornerRadius(12)
-                            }
-                        }
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
                     }
                 }
                 .padding()
             }
         }
         .onAppear {
-            // Request location permission again in case user returns to this view
-            viewModel.status = "Ready"
-            viewModel.isRunning = false
-            viewModel.currentStep = 0
-            viewModel.estimatedTime = ""
-            viewModel.distanceRemaining = ""
-            viewModel.deliveryLocation = nil
-            viewModel.driverLocation = nil
-            viewModel.pickupLocation = nil
-            viewModel.currentLocation = nil
-            viewModel.reset()
-            // Proactively request permission
-            viewModel.objectWillChange.send()
+            // Initialize map region
+            withAnimation(.easeInOut(duration: 0.3)) {
+                region = viewModel.getMapRegion()
+            }
+            
+            // Auto-start delivery
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                if viewModel.deliveryLocation != nil && !viewModel.isRunning {
+                    viewModel.startDelivery()
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        region = viewModel.getMapRegion()
+                    }
+                }
+            }
         }
         .alert("Location Not Available", isPresented: $showLocationAlert) {
             Button("OK") {}
@@ -265,7 +235,7 @@ struct DeliveryTrackingView: View {
             Text("We couldn't get your location. Please enable location services in Settings and try again.")
         }
         .fullScreenCover(isPresented: $showingReview, onDismiss: {
-            // Handle review completion
+            // Review completion handling
         }) {
             ReviewView()
         }
@@ -292,7 +262,7 @@ struct ReviewView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                 
-                // Star rating
+                // Rating stars
                 HStack(spacing: 10) {
                     ForEach(1...5, id: \.self) { star in
                         Button(action: {
@@ -305,7 +275,7 @@ struct ReviewView: View {
                     }
                 }
                 
-                // Review text
+                // Review input field
                 TextField("Write your review (optional)", text: $reviewText, axis: .vertical)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .lineLimit(3...6)
@@ -313,7 +283,7 @@ struct ReviewView: View {
                 Spacer()
                 
                 Button(action: {
-                    // Save review
+                    // Submit review action
                     dismiss()
                 }) {
                     Text("Submit Review")

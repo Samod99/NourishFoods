@@ -12,6 +12,7 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var dataInitializationVM = DataInitializationViewModel()
     @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var biometricManager = BiometricManager()
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
@@ -24,10 +25,12 @@ struct ContentView: View {
                 // User is signed in - show main app
                 MainAppView()
                     .environmentObject(authViewModel)
+                    .environmentObject(biometricManager)
             } else {
                 // User is not signed in - show authentication
                 AuthenticationView()
                     .environmentObject(authViewModel)
+                    .environmentObject(biometricManager)
             }
         }
         .task {

@@ -38,7 +38,7 @@ class HomeViewModel: ObservableObject {
                 .map { $0 }
         } catch {
             errorMessage = "Failed to load data: \(error.localizedDescription)"
-            print("❌ Error loading home data: \(error)")
+            print("Error loading home data: \(error)")
         }
         
         isLoading = false
@@ -53,7 +53,7 @@ class HomeViewModel: ObservableObject {
         do {
             return try await firestoreService.fetchFoodProducts(by: productType)
         } catch {
-            print("❌ Error loading products for category \(productType): \(error)")
+            print("Error loading products for category \(productType): \(error)")
             return []
         }
     }

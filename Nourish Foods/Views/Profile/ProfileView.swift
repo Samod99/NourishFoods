@@ -246,9 +246,9 @@ struct ProfileView: View {
     private func requestNotificationPermission() {
         NotificationService.shared.requestPermission { granted in
             if granted {
-                print("✅ Notification permission granted")
+                print("Notification permission granted")
             } else {
-                print("❌ Notification permission denied")
+                print("Notification permission denied")
             }
             checkNotificationStatus()
         }

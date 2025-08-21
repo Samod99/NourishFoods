@@ -192,7 +192,7 @@ class FirestoreService: ObservableObject {
             
             let _ = try await addRestaurant(restaurantWithoutId)
         }
-        print("✅ Sample restaurants added successfully")
+        print("Sample restaurants added successfully")
     }
     
     /// Adds sample food products to Firebase
@@ -208,7 +208,7 @@ class FirestoreService: ObservableObject {
         for product in SampleData.sampleFoodProducts {
             // Find the restaurant ID for this product
             guard let restaurantId = restaurantNameToId[product.restaurantName] else {
-                print("⚠️ Restaurant not found for product: \(product.shortName)")
+                print("Restaurant not found for product: \(product.shortName)")
                 continue
             }
             
@@ -235,12 +235,12 @@ class FirestoreService: ObservableObject {
             
             let _ = try await addFoodProduct(productWithoutId)
         }
-        print("✅ Sample food products added successfully")
+        print("Sample food products added successfully")
     }
     
     /// Resets all data and reinitializes with sample data
     func resetToSampleData() async throws {
-        print("🔄 Resetting all data and adding sample data...")
+        print("Resetting all data and adding sample data...")
         
         // Delete all existing data
         try await deleteAllData()
@@ -249,7 +249,7 @@ class FirestoreService: ObservableObject {
         try await addSampleRestaurants()
         try await addSampleFoodProducts()
         
-        print("✅ Data reset completed successfully")
+        print("Data reset completed successfully")
     }
     
     /// Deletes all restaurants and food products
@@ -266,7 +266,7 @@ class FirestoreService: ObservableObject {
             try await db.collection(FoodProduct.collectionName).document(document.documentID).delete()
         }
         
-        print("🗑️ All existing data deleted")
+        print("All existing data deleted")
     }
 }
 

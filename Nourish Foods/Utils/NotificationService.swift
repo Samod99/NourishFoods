@@ -10,13 +10,13 @@ class NotificationService {
     var showInAppAlert: ((String, String) -> Void)?
     
     func requestPermission(completion: ((Bool) -> Void)? = nil) {
-        print(" Requesting notification permission...")
+        print("Requesting notification permission...")
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
                 if let error = error {
                     print("Notification permission error: \(error.localizedDescription)")
                 }
-                print(" Permission granted: \(granted)")
+                print("Permission granted: \(granted)")
                 completion?(granted)
             }
         }
@@ -25,7 +25,7 @@ class NotificationService {
     func checkPermissionStatus(completion: @escaping (UNAuthorizationStatus) -> Void) {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
-                print(" Current notification status: \(settings.authorizationStatus.rawValue)")
+                print("Current notification status: \(settings.authorizationStatus.rawValue)")
                 completion(settings.authorizationStatus)
             }
         }

@@ -22,9 +22,9 @@ struct Nourish_FoodsApp: App {
         // Request notification permissions when app starts
         NotificationService.shared.requestPermission { granted in
             if granted {
-                print("✅ Notification permission granted")
+                print("Notification permission granted")
             } else {
-                print("❌ Notification permission denied")
+                print("Notification permission denied")
             }
         }
         // Request location permission at app launch using LocationManager

@@ -7,6 +7,8 @@
 
 import Foundation
 import SwiftUI
+import Firebase
+import FirebaseFirestore
 
 @MainActor
 class CartViewModel: ObservableObject {
@@ -19,6 +21,11 @@ class CartViewModel: ObservableObject {
     @Published var authViewModel: AuthViewModel?
     
     init() {
+        loadCartFromStorage()
+    }
+    
+    // Reload cart when authentication state changes
+    func reloadCartForUser() {
         loadCartFromStorage()
     }
     
@@ -74,7 +81,7 @@ class CartViewModel: ObservableObject {
     
     func completeOrder(deliveryAddress: String? = nil, paymentMethod: String? = nil, healthViewModel: HealthTrackingViewModel? = nil, completion: @escaping (Bool) -> Void = { _ in }) {
         // Create UserOrder for authenticated users
-        if let authViewModel = authViewModel, 
+        if let authViewModel = authViewModel,
            let userId = authViewModel.currentUser?.uid,
            authViewModel.isAuthenticated {
             let userOrder = UserOrder(
@@ -175,22 +182,138 @@ class CartViewModel: ObservableObject {
     }
     
     private func saveCartToStorage() {
-        do {
-            let data = try JSONEncoder().encode(cartItems)
-            userDefaults.set(data, forKey: cartKey)
-        } catch {
-            print("Error saving cart to storage: \(error)")
+        // Save to Firebase for authenticated users, fallback to UserDefaults
+        if let authViewModel = authViewModel,
+           let userId = authViewModel.currentUser?.uid,
+           authViewModel.isAuthenticated {
+            // Save to Firebase
+            saveCartToFirebase(userId: userId)
+        } else {
+            // Fallback to UserDefaults for non-authenticated users
+            do {
+                let data = try JSONEncoder().encode(cartItems)
+                userDefaults.set(data, forKey: cartKey)
+            } catch {
+                print("Error saving cart to storage: \(error)")
+            }
         }
     }
     
     private func loadCartFromStorage() {
-        guard let data = userDefaults.data(forKey: cartKey) else { return }
+        // Load from Firebase for authenticated users, fallback to UserDefaults
+        if let authViewModel = authViewModel,
+           let userId = authViewModel.currentUser?.uid,
+           authViewModel.isAuthenticated {
+            // Load from Firebase
+            loadCartFromFirebase(userId: userId)
+        } else {
+            // Fallback to UserDefaults for non-authenticated users
+            guard let data = userDefaults.data(forKey: cartKey) else { return }
+            
+            do {
+                cartItems = try JSONDecoder().decode([CartItem].self, from: data)
+            } catch {
+                print("Error loading cart from storage: \(error)")
+                cartItems = []
+            }
+        }
+    }
+    
+    private func saveCartToFirebase(userId: String) {
+        let db = Firestore.firestore()
+        let cartRef = db.collection("users").document(userId).collection("cart")
         
-        do {
-            cartItems = try JSONDecoder().decode([CartItem].self, from: data)
-        } catch {
-            print("Error loading cart from storage: \(error)")
-            cartItems = []
+        // Convert cart items to dictionary format
+        let cartData = cartItems.map { item in
+            [
+                "productId": item.product.id,
+                "productName": item.product.shortName,
+                "productPrice": item.product.price,
+                "productImageURL": item.product.imageURL ?? "",
+                "restaurantId": item.product.restaurantId,
+                "quantity": item.quantity,
+                "timestamp": FieldValue.serverTimestamp()
+            ]
+        }
+        
+        // Clear existing cart and save new items
+        cartRef.getDocuments(source: .default) { [weak self] snapshot, error in
+            if let error = error {
+                print("Error fetching cart: \(error)")
+                return
+            }
+            
+            // Delete existing documents
+            let batch = db.batch()
+            snapshot?.documents.forEach { document in
+                batch.deleteDocument(document.reference)
+            }
+            
+            // Add new items
+            cartData.forEach { itemData in
+                let docRef = cartRef.document()
+                batch.setData(itemData, forDocument: docRef)
+            }
+            
+            // Commit the batch
+            batch.commit { error in
+                if let error = error {
+                    print("Error saving cart to Firebase: \(error)")
+                } else {
+                    print("Cart saved to Firebase successfully")
+                }
+            }
+        }
+    }
+    
+    private func loadCartFromFirebase(userId: String) {
+        let db = Firestore.firestore()
+        let cartRef = db.collection("users").document(userId).collection("cart")
+        
+        cartRef.getDocuments(source: .default) { [weak self] snapshot, error in
+            if let error = error {
+                print("Error loading cart from Firebase: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("No cart documents found")
+                return
+            }
+            
+            // Convert Firebase documents back to CartItems
+            var loadedItems: [CartItem] = []
+            
+            for document in documents {
+                let data = document.data()
+                
+                // Build FoodProduct matching its model initializer
+                let product = FoodProduct(
+                    id: data["productId"] as? String,
+                    shortName: data["productName"] as? String ?? "",
+                    longName: data["productName"] as? String ?? "",
+                    restaurantName: data["restaurantName"] as? String ?? "",
+                    restaurantId: data["restaurantId"] as? String ?? "",
+                    price: data["productPrice"] as? Double ?? 0.0,
+                    productType: FoodProduct.ProductType(rawValue: data["productType"] as? String ?? "") ?? .fastFood,
+                    calories: data["calories"] as? Int ?? 0,
+                    deliveryTime: data["deliveryTime"] as? Int ?? 0,
+                    description: data["description"] as? String ?? "",
+                    imageURL: data["productImageURL"] as? String,
+                    isAvailable: data["isAvailable"] as? Bool ?? true,
+                    allergens: data["allergens"] as? [String] ?? [],
+                    ingredients: data["ingredients"] as? [String] ?? [],
+                    preparationTime: data["preparationTime"] as? Int ?? 0,
+                    createdAt: Date(),
+                    updatedAt: Date()
+                )
+                
+                let quantity = data["quantity"] as? Int ?? 1
+                let cartItem = CartItem(product: product, quantity: quantity)
+                loadedItems.append(cartItem)
+            }
+            
+            self?.cartItems = loadedItems
         }
     }
     

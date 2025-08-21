@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainAppView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var biometricManager: BiometricManager
     @StateObject private var dataInitializationVM = DataInitializationViewModel()
     @StateObject private var cartViewModel = CartViewModel()
     @StateObject private var healthViewModel = HealthTrackingViewModel()
@@ -80,13 +81,22 @@ struct MainAppView: View {
                 .tag(3)
                     }
         .accentColor(.buttonBackground)
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(Color.black, for: .tabBar)
         .onAppear {
             // Initial connection of ViewModels with AuthViewModel
             cartViewModel.authViewModel = authViewModel
+            
+            // Check biometric authentication if user is logged in
+            if biometricManager.shouldPromptForBiometrics() {
+                biometricManager.authenticateWithBiometrics()
+            }
         }
         .onReceive(authViewModel.$isAuthenticated) { _ in
             // Connect ViewModels with AuthViewModel whenever authentication state changes
             cartViewModel.authViewModel = authViewModel
+            // Reload cart for the authenticated user
+            cartViewModel.reloadCartForUser()
         }
         
         // Show initialization overlay if needed
@@ -106,6 +116,14 @@ struct MainAppView: View {
             .background(Color.black.opacity(0.3))
             .cornerRadius(12)
             .padding()
+        }
+        
+        // Show login screen if biometric authentication fails
+        if biometricManager.showLoginScreen {
+            AuthenticationView()
+                .environmentObject(authViewModel)
+                .environmentObject(biometricManager)
+                .transition(.opacity)
         }
         }
         .task {

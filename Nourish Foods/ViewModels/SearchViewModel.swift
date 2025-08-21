@@ -30,7 +30,7 @@ class SearchViewModel: ObservableObject {
             searchResults = allProducts
         } catch {
             errorMessage = "Failed to load products: \(error.localizedDescription)"
-            print("❌ Error loading products: \(error)")
+            print("Error loading products: \(error)")
         }
         
         isLoading = false

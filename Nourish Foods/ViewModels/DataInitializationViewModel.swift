@@ -22,7 +22,7 @@ class DataInitializationViewModel: ObservableObject {
             initializationMessage = "Database ready!"
         } catch {
             initializationMessage = "Error initializing data: \(error.localizedDescription)"
-            print("❌ Error initializing sample data: \(error)")
+            print("Error initializing sample data: \(error)")
         }
         
         isInitializing = false
@@ -39,7 +39,7 @@ class DataInitializationViewModel: ObservableObject {
             initializationMessage = "Database reset successfully!"
         } catch {
             initializationMessage = "Error resetting data: \(error.localizedDescription)"
-            print("❌ Error resetting data: \(error)")
+            print("Error resetting data: \(error)")
         }
         
         isInitializing = false
@@ -56,7 +56,7 @@ class DataInitializationViewModel: ObservableObject {
                 hasProducts: !products.isEmpty
             )
         } catch {
-            print("❌ Error checking database status: \(error)")
+            print("Error checking database status: \(error)")
             return (hasRestaurants: false, hasProducts: false)
         }
     }

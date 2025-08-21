@@ -274,10 +274,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Nourish-Foods-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Face ID is used to securely and quickly log you into your account";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app needs your location to track deliveries and show your position on the map always";
 				INFOPLIST_KEY_NSLocationUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show real-time delivery tracking and accurate distance/time estimates.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -309,10 +310,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Nourish-Foods-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Face ID is used to securely and quickly log you into your account";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app needs your location to track deliveries and show your position on the map always";
 				INFOPLIST_KEY_NSLocationUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to track deliveries and show your position on the map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show real-time delivery tracking and accurate distance/time estimates.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

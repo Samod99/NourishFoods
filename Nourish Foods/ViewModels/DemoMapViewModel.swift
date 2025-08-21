@@ -26,8 +26,8 @@ class DemoMapViewModel: ObservableObject {
     // Restaurant pickup location (fixed)
     private let restaurantLocation = CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612)
     
-    // Driver speed in meters per second (5 km/h = 1.39 m/s)
-    private let driverSpeed: Double = 1.39 // 5 km/h in m/s
+    // Driver speed: 1 second per kilometer (1000 m/s)
+    private let driverSpeed: Double = 1000.0 // 1 second per kilometer
     
     init() {
         setupLocationManager()
@@ -75,12 +75,12 @@ class DemoMapViewModel: ObservableObject {
         // If delivery is running, update driver location
         if isRunning {
             // Calculate distance to move based on speed
-            let distanceToMove = driverSpeed * 0.5
+            let distanceToMove = driverSpeed * 0.1
             updateDriverLocation(distanceToMove: distanceToMove)
         }
         // Debug: Print locations
-        print("[DEBUG] User location: \(location.latitude), \(location.longitude)")
-        print("[DEBUG] Driver location: \(String(describing: driverLocation))")
+        print("User location: \(location.latitude), \(location.longitude)")
+        print("Driver location: \(String(describing: driverLocation))")
     }
     
     func startDelivery() {
@@ -125,8 +125,8 @@ class DemoMapViewModel: ObservableObject {
         timer?.invalidate()
         isPaused = false
         
-        // Update every 0.5 seconds for smoother movement
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+        // Update every 0.1 seconds for smoother movement
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             if self?.isPaused == false {
                 self?.updateDeliveryProgress()
             }
@@ -137,8 +137,8 @@ class DemoMapViewModel: ObservableObject {
         guard let driverLocation = driverLocation,
               let userLocation = deliveryLocation else { return }
         
-        // Calculate distance to move based on speed (0.5 seconds * 1.39 m/s = 0.695 meters per update)
-        let distanceToMove = driverSpeed * 0.5
+        // Calculate distance to move based on speed (0.1 seconds * 1000 m/s = 100 meters per update)
+        let distanceToMove = driverSpeed * 0.1
         
         // Update distance traveled
         distanceTraveled += distanceToMove
@@ -195,7 +195,7 @@ class DemoMapViewModel: ObservableObject {
         let distance = locationManager.calculateDistance(from: driverLocation, to: userLocation)
         distanceRemaining = locationManager.formatDistance(distance)
         
-        // Calculate estimated time based on driver speed (5 km/h)
+        // Calculate estimated time based on driver speed (1 second per km)
         let estimatedTimeInSeconds = distance / driverSpeed
         estimatedTime = formatTime(estimatedTimeInSeconds)
     }
