@@ -7,20 +7,68 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D2D10BB2E7883A800B12138 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D2D10BA2E7883A800B12138 /* WidgetKit.framework */; };
+		0D2D10BD2E7883A800B12138 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D2D10BC2E7883A800B12138 /* SwiftUI.framework */; };
+		0D2D10CE2E7883AA00B12138 /* widgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0D2D10B82E7883A800B12138 /* widgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0DE0CFF72E1D93B500DE71EA /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0DE0CFF62E1D93B500DE71EA /* FirebaseAuth */; };
 		0DE0CFF92E1D93B500DE71EA /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0DE0CFF82E1D93B500DE71EA /* FirebaseFirestore */; };
 		0DE0D0242E1F00CC00DE71EA /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0DE0D0232E1F00CC00DE71EA /* FirebaseDatabase */; };
 		0DE0D0262E1F00CC00DE71EA /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 0DE0D0252E1F00CC00DE71EA /* FirebaseFirestoreCombine-Community */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0D2D10CC2E7883AA00B12138 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0D0C21BA2E18EB4400062E40 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0D2D10B72E7883A800B12138;
+			remoteInfo = widgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0D2D10CF2E7883AA00B12138 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0D2D10CE2E7883AA00B12138 /* widgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0D0C21C22E18EB4400062E40 /* Nourish Foods.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nourish Foods.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D2D10B82E7883A800B12138 /* widgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = widgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D2D10BA2E7883A800B12138 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		0D2D10BC2E7883A800B12138 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0D2D10D22E7883AA00B12138 /* Exceptions for "widget" folder in "widgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0D2D10B72E7883A800B12138 /* widgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0D0C21C42E18EB4400062E40 /* Nourish Foods */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Nourish Foods";
+			sourceTree = "<group>";
+		};
+		0D2D10BE2E7883A800B12138 /* widget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0D2D10D22E7883AA00B12138 /* Exceptions for "widget" folder in "widgetExtension" target */,
+			);
+			path = widget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -37,6 +85,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0D2D10B52E7883A800B12138 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D2D10BD2E7883A800B12138 /* SwiftUI.framework in Frameworks */,
+				0D2D10BB2E7883A800B12138 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -44,6 +101,8 @@
 			isa = PBXGroup;
 			children = (
 				0D0C21C42E18EB4400062E40 /* Nourish Foods */,
+				0D2D10BE2E7883A800B12138 /* widget */,
+				0D2D10B92E7883A800B12138 /* Frameworks */,
 				0D0C21C32E18EB4400062E40 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -52,8 +111,18 @@
 			isa = PBXGroup;
 			children = (
 				0D0C21C22E18EB4400062E40 /* Nourish Foods.app */,
+				0D2D10B82E7883A800B12138 /* widgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0D2D10B92E7883A800B12138 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0D2D10BA2E7883A800B12138 /* WidgetKit.framework */,
+				0D2D10BC2E7883A800B12138 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -66,10 +135,12 @@
 				0D0C21BE2E18EB4400062E40 /* Sources */,
 				0D0C21BF2E18EB4400062E40 /* Frameworks */,
 				0D0C21C02E18EB4400062E40 /* Resources */,
+				0D2D10CF2E7883AA00B12138 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0D2D10CD2E7883AA00B12138 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				0D0C21C42E18EB4400062E40 /* Nourish Foods */,
@@ -85,6 +156,28 @@
 			productReference = 0D0C21C22E18EB4400062E40 /* Nourish Foods.app */;
 			productType = "com.apple.product-type.application";
 		};
+		0D2D10B72E7883A800B12138 /* widgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0D2D10D32E7883AA00B12138 /* Build configuration list for PBXNativeTarget "widgetExtension" */;
+			buildPhases = (
+				0D2D10B42E7883A800B12138 /* Sources */,
+				0D2D10B52E7883A800B12138 /* Frameworks */,
+				0D2D10B62E7883A800B12138 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0D2D10BE2E7883A800B12138 /* widget */,
+			);
+			name = widgetExtension;
+			packageProductDependencies = (
+			);
+			productName = widgetExtension;
+			productReference = 0D2D10B82E7883A800B12138 /* widgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -96,6 +189,9 @@
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					0D0C21C12E18EB4400062E40 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					0D2D10B72E7883A800B12138 = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
@@ -118,12 +214,20 @@
 			projectRoot = "";
 			targets = (
 				0D0C21C12E18EB4400062E40 /* Nourish Foods */,
+				0D2D10B72E7883A800B12138 /* widgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0D0C21C02E18EB4400062E40 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0D2D10B62E7883A800B12138 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -140,7 +244,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0D2D10B42E7883A800B12138 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0D2D10CD2E7883AA00B12138 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0D2D10B72E7883A800B12138 /* widgetExtension */;
+			targetProxy = 0D2D10CC2E7883AA00B12138 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0D0C21D02E18EB4500062E40 /* Debug */ = {
@@ -290,7 +409,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.samod.Nourish-Foods";
+				PRODUCT_BUNDLE_IDENTIFIER = com.samod.NourishFoods;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -326,8 +445,62 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.samod.Nourish-Foods";
+				PRODUCT_BUNDLE_IDENTIFIER = com.samod.NourishFoods;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		0D2D10D02E7883AA00B12138 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 78JZS6XRF4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = widget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = widget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.samod.NourishFoods.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0D2D10D12E7883AA00B12138 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 78JZS6XRF4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = widget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = widget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.samod.NourishFoods.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -351,6 +524,15 @@
 			buildConfigurations = (
 				0D0C21D32E18EB4500062E40 /* Debug */,
 				0D0C21D42E18EB4500062E40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0D2D10D32E7883AA00B12138 /* Build configuration list for PBXNativeTarget "widgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0D2D10D02E7883AA00B12138 /* Debug */,
+				0D2D10D12E7883AA00B12138 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
