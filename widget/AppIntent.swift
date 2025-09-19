@@ -12,6 +12,6 @@ struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Configuration" }
     static var description: IntentDescription { "This is an example widget." }
 
-    @Parameter(title: "Favorite Emoji", default: "😃")
+    @Parameter(title: "Favourite Emoji", default: "😃")
     var favoriteEmoji: String
 }
