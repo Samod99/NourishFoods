@@ -256,8 +256,7 @@ class HealthAI: ObservableObject {
     }
     
     private func generateHealthyAlternatives() -> [FoodProduct] {
-        // This would typically connect to your food database
-        // For now, return sample healthy alternatives
+        // Return sample healthy alternatives
         return SampleData.sampleFoodProducts.filter { product in
             healthyFoodCategories.contains(product.productType) &&
             product.calories < 400 // Low calorie options

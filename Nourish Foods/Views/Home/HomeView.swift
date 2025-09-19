@@ -383,7 +383,6 @@ struct HomeCategoryView: View {
                     .fontWeight(.bold)
                 Spacer()
                 Button {
-                    // TODO: Navigate to see all products
                     print("See all \(title)")
                 } label: {
                     Text("See All")

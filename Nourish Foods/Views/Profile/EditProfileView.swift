@@ -46,7 +46,7 @@ struct EditProfileView: View {
                             )
                         
                         Button("Change Photo") {
-                            // TODO: Implement photo picker
+                            
                         }
                         .font(.subheadline)
                         .foregroundColor(.buttonBackground)

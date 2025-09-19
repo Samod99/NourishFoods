@@ -30,7 +30,6 @@ class HomeViewModel: ObservableObject {
         
         do {
             let allProducts = try await firestoreService.fetchAvailableFoodProducts()
-            // Healthy foods: vegetarian, salads, fruits, soups
             healthyFoods = allProducts.filter { [.vegetarian, .salads, .fruits, .soups].contains($0.productType) }.prefix(6).map { $0 }
             bestSalesProducts = allProducts
                 .sorted { $0.calories > $1.calories }

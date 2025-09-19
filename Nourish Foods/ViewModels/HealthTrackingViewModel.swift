@@ -32,10 +32,10 @@ class HealthTrackingViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Manual Reset (for testing)
+    // MARK: - Manual Reset
     func manualResetCalories() {
         resetDailyCalories()
-        setLastResetDate(Date.distantPast) // Force reset on next check
+        setLastResetDate(Date.distantPast) 
         print("Manual calorie reset completed")
     }
     
@@ -107,7 +107,7 @@ class HealthTrackingViewModel: ObservableObject {
     
     // MARK: - Calorie Tracking
     func addFoodToTracking(_ product: FoodProduct, quantity: Int) {
-        // Check if it's a new day and reset if needed
+        
         checkAndResetDailyCalories()
         
         healthAI.addFoodEntry(product, quantity: quantity, mealType: selectedMealType)
@@ -119,13 +119,13 @@ class HealthTrackingViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Purchase Tracking (called after successful purchase)
+    // MARK: - Purchase Tracking 
     func trackPurchase(_ cartItems: [CartItem]) {
-        // Check if it's a new day and reset if needed
+        
         checkAndResetDailyCalories()
         
         for item in cartItems {
-            healthAI.addFoodEntry(item.product, quantity: item.quantity, mealType: .lunch) // Default to lunch, can be improved
+            healthAI.addFoodEntry(item.product, quantity: item.quantity, mealType: .lunch) // Default to lunch
         }
         
         saveCalorieEntries()
@@ -158,7 +158,7 @@ class HealthTrackingViewModel: ObservableObject {
     
     // MARK: - Daily Calorie Analytics
     func getTodayCalories() -> Int {
-        checkAndResetDailyCalories() // Ensure we're tracking current day
+        checkAndResetDailyCalories() 
         return healthAI.getTodayCalories()
     }
     
@@ -197,7 +197,7 @@ class HealthTrackingViewModel: ObservableObject {
     }
     
     func getMealBreakdown() -> [String: Int] {
-        checkAndResetDailyCalories() // Ensure we're tracking current day
+        checkAndResetDailyCalories() 
         let today = Calendar.current.startOfDay(for: Date())
         let todayEntries = healthAI.dailyEntries.filter { 
             Calendar.current.isDate($0.date, inSameDayAs: today) 
@@ -216,7 +216,7 @@ class HealthTrackingViewModel: ObservableObject {
     
     // MARK: - Daily Food Entries List
     func getTodayFoodEntries() -> [DailyCalorieEntry] {
-        checkAndResetDailyCalories() // Ensure we're tracking current day
+        checkAndResetDailyCalories() 
         let today = Calendar.current.startOfDay(for: Date())
         return healthAI.dailyEntries.filter { 
             Calendar.current.isDate($0.date, inSameDayAs: today) 
@@ -269,14 +269,11 @@ class HealthTrackingViewModel: ObservableObject {
     
     // MARK: - Notifications
     func scheduleCalorieReminders() {
-        // This would integrate with local notifications
-        // For now, just a placeholder
         print("Calorie reminders scheduled")
     }
     
     func sendCalorieAlert() {
         if let alert = healthAI.calorieAlert {
-            // This would integrate with your notification system
             NotificationService.shared.sendCalorieAlertNotification(
                 title: "Calorie Alert",
                 body: alert.message

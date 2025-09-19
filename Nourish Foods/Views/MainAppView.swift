@@ -93,13 +93,12 @@ struct MainAppView: View {
             }
         }
         .onReceive(authViewModel.$isAuthenticated) { _ in
-            // Connect ViewModels with AuthViewModel whenever authentication state changes
             cartViewModel.authViewModel = authViewModel
             // Reload cart for the authenticated user
             cartViewModel.reloadCartForUser()
         }
         
-        // Show initialization overlay if needed
+        // Show initialization overlay
         if dataInitializationVM.isInitializing {
             VStack {
                 ProgressView()
@@ -127,7 +126,7 @@ struct MainAppView: View {
         }
         }
         .task {
-            // Initialize sample data if needed when app starts
+            // Initialize sample data
             await dataInitializationVM.initializeSampleDataIfNeeded()
         }
     }

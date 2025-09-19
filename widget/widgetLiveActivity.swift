@@ -11,18 +11,18 @@ import SwiftUI
 
 struct widgetAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
-        // Dynamic stateful properties about your activity go here!
+        // Dynamic stateful properties
         var emoji: String
     }
 
-    // Fixed non-changing properties about your activity go here!
+    // Fixed non-changing properties
     var name: String
 }
 
 struct widgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: widgetAttributes.self) { context in
-            // Lock screen/banner UI goes here
+            // Lock screen/banner
             VStack {
                 Text("Hello \(context.state.emoji)")
             }
@@ -31,8 +31,6 @@ struct widgetLiveActivity: Widget {
 
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI goes here.  Compose the expanded UI through
-                // various regions, like leading/trailing/center/bottom
                 DynamicIslandExpandedRegion(.leading) {
                     Text("Leading")
                 }
@@ -41,7 +39,6 @@ struct widgetLiveActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     Text("Bottom \(context.state.emoji)")
-                    // more content
                 }
             } compactLeading: {
                 Text("L")

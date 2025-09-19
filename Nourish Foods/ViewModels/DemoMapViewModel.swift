@@ -23,10 +23,10 @@ class DemoMapViewModel: ObservableObject {
     private var lastMapUpdate = Date()
     private let mapUpdateInterval: TimeInterval = 1.0 // Update map every 1 second
     
-    // Restaurant pickup location (fixed)
+    // Restaurant pickup location 
     private let restaurantLocation = CLLocationCoordinate2D(latitude: 6.9271, longitude: 79.8612)
     
-    // Driver speed: 1 second per kilometer (1000 m/s)
+    // Driver speed:
     private let driverSpeed: Double = 1000.0 // 1 second per kilometer
     
     init() {
@@ -78,7 +78,6 @@ class DemoMapViewModel: ObservableObject {
             let distanceToMove = driverSpeed * 0.1
             updateDriverLocation(distanceToMove: distanceToMove)
         }
-        // Debug: Print locations
         print("User location: \(location.latitude), \(location.longitude)")
         print("Driver location: \(String(describing: driverLocation))")
     }
@@ -177,7 +176,6 @@ class DemoMapViewModel: ObservableObject {
         
         let distanceToUser = locationManager.calculateDistance(from: driverLocation, to: userLocation)
         
-        // If very close to user, snap to user location
         if distanceToUser < 10 {
             self.driverLocation = userLocation
             return
@@ -273,7 +271,7 @@ class DemoMapViewModel: ObservableObject {
     func getMapAnnotations() -> [MapPinItem] {
         var annotations: [MapPinItem] = []
         
-        // Add restaurant/pickup location
+        // Add restaurant location
         if let pickupLocation = pickupLocation {
             annotations.append(MapPinItem(
                 coordinate: pickupLocation,
@@ -283,7 +281,7 @@ class DemoMapViewModel: ObservableObject {
             ))
         }
         
-        // Add driver location (only if running to prevent excessive updates)
+        // Add driver location
         if let driverLocation = driverLocation {
             annotations.append(MapPinItem(
                 coordinate: driverLocation,
@@ -293,7 +291,7 @@ class DemoMapViewModel: ObservableObject {
             ))
         }
         
-        // Add user location (delivery destination)
+        // Add user location
         if let userLocation = deliveryLocation {
             annotations.append(MapPinItem(
                 coordinate: userLocation,

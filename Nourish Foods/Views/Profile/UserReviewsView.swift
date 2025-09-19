@@ -248,7 +248,7 @@ struct AddReviewView: View {
         
         let review = UserReview(
             userId: userId,
-            restaurantId: "", // You might want to get the actual restaurant ID
+            restaurantId: "", 
             restaurantName: selectedRestaurant,
             rating: rating,
             comment: comment

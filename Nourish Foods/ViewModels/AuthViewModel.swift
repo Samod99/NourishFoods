@@ -378,7 +378,6 @@ class AuthViewModel: ObservableObject {
                     // Update local order
                     if let index = self?.userOrders.firstIndex(where: { $0.id == orderId }) {
                         var updatedOrder = self?.userOrders[index]
-                        // Note: This is a simplified update. In a real app, you'd want to reload the order from Firestore
                         completion(true)
                     } else {
                         completion(true)
